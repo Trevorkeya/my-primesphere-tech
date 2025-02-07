@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <!-- Header-->
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Shopping Cart</h1>
+                <p class="lead fw-normal text-white-50 mb-0">View Your cart. . .</p>
+            </div>
+        </div>
+    </header>
+    <br/>
+
+    <div class="container">
+        {% if cart_products%}
+            {% for product in cart_products %}
+
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                        <img src="{{ product.image.url}}" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="Product image">
+                        </div>
+                        <div class="col-md-8">
+                        <div class="card-body">
+                            <center>
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+            
+                            {% if product.is_sale %}
+                                <div class="d-flex justify-content-center small text-warning mb-2">
+                                    <div class="bi-star-fill"></div>
+                                    &nbsp;&nbsp;Sale!&nbsp;&nbsp;
+                                    <div class="bi-star-fill"></div>
+                                </div>
+                                <p class="card-text"><small><strike>${{ product.price }}</strike> ${{ product.sale_price }}</small></p>
+                            {% else %}
+                                <p class="card-text"><small>${{ product.price }}</small></p>
+                                
+                            {% endif %}
+                            
+                            </center>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+            {% endfor %}
+        {% else %}
+            <center>
+                <h1>Your cart is empty</h1>
+                <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+            </center>
+        {% endif %}
+    </div>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        
+{% endblock %}
