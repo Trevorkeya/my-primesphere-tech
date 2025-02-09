@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-md-8">
                         <div class="card-body">
-                            <center>
+                           <center>
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">{{ product.description }}</p>
             
@@ -39,14 +39,41 @@
                                 <p class="card-text"><small>${{ product.price }}</small></p>
                                 
                             {% endif %}
+                            <br/><br/>
+                              <div class="row justify-content-center">
+                                 <div class="col-md-2"> Quantity: </div>
+                                 <div class="col-md-2">
+                                    <select class="form-select form-select-sm" aria-label="Default select example" id = "select{{product.id}}">
+                                       <option selected>
+                                          {% for key, value in quantities.items %}
+                                             {% if key == product.id|slugify %}
+                                                {{ value }}
+                                             {% endif %}
+                                          {% endfor %}
+                                       </option>
+                                       <option value="1">1</option>
+                                       <option value="2">2</option>
+                                       <option value="3">3</option>
+                                       <option value="4">4</option>
+                                       <option value="5">5</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <br/><br/>
+                            <button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">Update</button>
+                            <button type="button" data-index="{{product.id}}" class="btn btn-danger delete-product">Remove</button>
                             
-                            </center>
+                           </center>
                         </div>
                         </div>
                     </div>
                 </div>
                 <br/>
             {% endfor %}
+            <div align="right">
+                <h3>Total: ${{ totals}} </h3>
+                
+            </div>
         {% else %}
             <center>
                 <h1>Your cart is empty</h1>
@@ -55,5 +82,60 @@
         {% endif %}
     </div>
 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        
+
+<script>
+   //Update cart button
+   $(document).on('click', '.update-cart', function(e){
+      e.preventDefault();
+      // grab the product id
+      var productid = $(this).data('index');
+
+      $.ajax({
+       type: 'POST',
+       url: '{% url "cart_update" %}',
+       data: {
+           product_id: $(this).data('index'),
+           product_qty: $('#select' + productid + ' option:selected').text(),
+           csrfmiddlewaretoken: '{{ csrf_token }}',
+           action: 'post'
+       },
+
+       success: function (json) {
+           location.reload();
+       },
+
+       error: function(xhr, errmsg, err){
+         
+       }
+
+      });
+   });
+
+   //delete product button
+   $(document).on('click', '.delete-product', function(e){
+    e.preventDefault();
+    // grab the product id
+    //var productid = $(this).data('index');
+
+    $.ajax({
+     type: 'POST',
+     url: '{% url "cart_delete" %}',
+     data: {
+         product_id: $(this).data('index'),
+         csrfmiddlewaretoken: '{{ csrf_token }}',
+         action: 'post'
+     },
+
+     success: function (json) {
+         location.reload();
+     },
+
+     error: function(xhr, errmsg, err){
+       
+     }
+
+    });
+ });
+</script>
+
 {% endblock %}

@@ -15,14 +15,15 @@ class Cart():
         # Make sure cart is available on all pages on the site
         self.cart = cart
 
-    def add(self, product):
+    def add(self, product, quantity):
         product_id = str(product.id)
-        
+        product_qty = quantity        
         # Check if product is already in the cart
         if product_id in self.cart:
             pass
         else:
-            self.cart[product_id] = {'price': str(product.price)}
+            # self.cart[product_id] = {'price': str(product.price)}
+            self.cart[product_id] = int(product_qty)
 
         self.session.modified = True
 
@@ -37,4 +38,52 @@ class Cart():
         # return those looked up products
         return products
 
+    def get_quants(self):
+        quantities = self.cart
+        return quantities
+    
+    def update(self, product, quantity):
+        product_id = str(product)
+        product_qty = int(quantity)
+
+        # Get cart
+        ourcart = self.cart
+        # Update Dictionary/Cart
+        ourcart[product_id] = product_qty
+
+        # Save to session
+        self.session.modified = True
+
+        thing = self.cart
+        return thing
+
+    def delete(self, product):
+        product_id = str(product)
+
+        # Check if product is in the cart to delete
+        if product_id in self.cart:
+            del self.cart[product_id]
+
+        self.session.modified = True
         
+
+    def cart_total(self):
+        # Get product ids
+        product_ids = self.cart.keys()
+        # Lookup those keys in our products Database
+        products = Product.objects.filter(id__in=product_ids)
+        # Get quantities
+        quantities = self.cart
+        # Start counting at 0
+        total = 0
+        for key, value in quantities.items():
+            # Convert key string into int
+            key = int(key)
+            for product in products:
+                if product.id == key:
+                    if product.is_sale:
+                        total += product.sale_price * value
+                    else:
+                        total += product.price * value
+
+        return total
