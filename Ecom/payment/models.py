@@ -27,6 +27,14 @@ class ShippingAddress(models.Model):
     def __str__(self):
         return f'Shipping Address - {str(self.id)}'
 
+def create_shipping(sender, instance, created, **kwargs):
+    if created:
+        user_shipping = ShippingAddress(user=instance)
+        user_shipping.save()
+
+# Automatically create shipping address when a new user is created
+post_save.connect(create_shipping, sender=User)
+
 # Create Order Model
 class Order(models.Model):
     # Foreign Key
