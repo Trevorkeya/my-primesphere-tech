@@ -1,0 +1,59 @@
+{%extends 'base.html' %}
+{% block content %}
+
+
+<!-- Header-->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Shipped Items</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Checking on shipment. . .</p>
+        </div>
+    </div>
+</header>
+
+
+<div class="container">
+    <div class="row">
+        <center>
+            <div class="col-10">
+                <br/><br/>
+                <h3>Shippped Items</h3>
+                <table class="table table-hover table-info table-striped table-bordered">
+                    <thead class="table-dark">
+                      <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Customer Email</th>
+                        <th scope="col">Date Ordered</th>
+                        <th scope="col">Date Shipped</th>
+                        <th scope="col">Shipped</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in orders %}
+                      <tr>
+                        <td><a href="{% url 'orders' item.id%}">{{item.id}}</a></td>
+                        <td>${{item.amount_paid}}</td>
+                        <td>{{item.email}}</td>
+                        <td>{{item.date_ordered}}</td>
+                        <td>{{item.date_shipped}}</td>
+                        <td>
+                          <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="shipping_status" value="true">
+                            <input type="hidden" name="num" value={{item.id}}>
+                            <button type="submit" class="btn btn-danger btn-sm">Mark UnShipped</button>
+                          </form>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+                <br/><br/>
+            </div>
+        </center>
+    </div>
+</div>
+
+{% endblock %}

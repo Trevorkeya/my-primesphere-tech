@@ -49,6 +49,16 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Order - {str(self.id)}'
+
+# Auto add shipping date
+@receiver(pre_save, sender=Order)
+def set_shipped_date_on_update(sender, instance, **kwargs):
+    if instance.pk:
+        now = datetime.datetime.now()
+        obj = sender._default_manager.get(pk=instance.pk)
+        if instance.shipped and not obj.shipped:
+            instance.date_shipped = now
+            
     
 # Create Order Items Model
 class OrderItem(models.Model):
