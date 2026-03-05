@@ -5,7 +5,9 @@
         "dropend",
         "dropstart",
         "dropup",
+        "dynsl",
         "hstack",
+        "nccg",
         "vstack",
         "zindex"
     ]
