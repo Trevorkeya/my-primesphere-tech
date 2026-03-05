@@ -50,9 +50,21 @@ class Customer(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+    
+class Vendor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    store_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    business_address = models.TextField()
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.store_name
 
 # All the products
 class Product(models.Model):
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=50)
     price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
@@ -78,5 +90,3 @@ class Order(models.Model):
 
     def __str__(self):
         return self.product
-    
-    

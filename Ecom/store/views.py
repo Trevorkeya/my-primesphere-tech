@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import Product, Category, Profile
+from .models import Product, Category, Profile, Vendor
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
+from django.contrib.auth.decorators import login_required
 
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
@@ -14,6 +15,41 @@ import json
 from cart.cart import Cart
 
 # Create your views here.
+
+@login_required
+def vendor_dashboard(request):
+    if not hasattr(request.user, 'vendor'):
+        messages.warning(request, "You are not a vendor.")
+        return redirect('home')
+
+    if not request.user.vendor.is_approved:
+        messages.warning(request, "Your vendor account is pending approval.")
+        return redirect('home')
+
+    products = request.user.vendor.products.all()  # connected through a FK
+    return render(request, "vendor/dashboard.html", {'products': products})
+
+@login_required
+def apply_vendor(request):
+    if request.method == "POST":
+        store_name = request.POST.get("store_name")
+        description = request.POST.get("description")
+
+        # Only create if the user doesn't already have a vendor profile
+        vendor, created = Vendor.objects.get_or_create(
+            user=request.user,
+            defaults={'store_name': store_name, 'description': description}
+        )
+
+        if not created:
+            messages.warning(request, "You have already applied to be a vendor.")
+            return redirect('home')
+
+        messages.success(request, "Application submitted! Wait for approval.")
+        return render(request, "vendor/application_submitted.html")
+
+    return render(request, "vendor/apply_vendor.html")
+
 
 def search(request):
     # Determine if they filled out the form 

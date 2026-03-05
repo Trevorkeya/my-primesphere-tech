@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from store.models import Product
+from store.models import Product, Vendor
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 import datetime
@@ -65,8 +65,8 @@ class OrderItem(models.Model):
     # Foreign Key
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-
     quantity = models.PositiveBigIntegerField(default=1)
     price = models.DecimalField(max_digits=7, decimal_places=2)
 
