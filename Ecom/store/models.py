@@ -51,6 +51,7 @@ class Customer(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
     
+# Vendor model to store vendor information and their products
 class Vendor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=255)

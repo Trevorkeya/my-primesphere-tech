@@ -19,19 +19,19 @@
                 
                 <br/><br/>
                 <strong>
-                    Billing Information
+                    Vendor Application 
                 </strong>
                 <br/><br/>
                 <form method="POST">
                 {% csrf_token %}
 
-                    <label>Store Name</label>
-                    <input type="text" name="store_name" required>
+                    <label class="form-label">Store Name</label>
+                    <input type="text" name="store_name" required class="form-control">
 
-                    <label>Description</label>
-                    <textarea name="description"></textarea>
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control"></textarea>
 
-                    <button type="submit">Submit Application</button>
+                    <button type="submit" class="btn btn-dark">Submit Application</button>
                 </form>
                 
                 <br/><br/>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header -->
+<header class="bg-dark py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">Application Submitted</h1>
+        <p class="lead text-white-50">
+            Your vendor application has been received
+        </p>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="container mt-5 text-center">
+
+    <div class="card shadow p-4">
+        <h3 class="mb-3">⏳ Pending Approval</h3>
+
+        <p>
+            Thank you for applying to become a vendor on <strong>PrimeSphere</strong>.
+            Our team will review your application shortly.
+        </p>
+
+        <p class="text-muted">
+            You will gain access to your vendor dashboard once approved.
+        </p>
+
+        <div class="mt-4">
+            <a href="{% url 'home' %}" class="btn btn-dark">
+                Return to Home
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

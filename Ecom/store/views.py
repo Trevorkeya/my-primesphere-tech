@@ -8,7 +8,7 @@ from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django.contrib.auth.decorators import login_required
 
 from payment.forms import ShippingForm
-from payment.models import ShippingAddress
+from payment.models import ShippingAddress, OrderItem
 from django import forms
 from django.db.models import Q
 import json
@@ -17,17 +17,68 @@ from cart.cart import Cart
 # Create your views here.
 
 @login_required
+def add_product(request):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        category_id = request.POST.get("category")
+        image = request.FILES.get("image")
+
+        category = Category.objects.get(id=category_id)
+
+        Product.objects.create(
+            vendor=vendor,
+            name=name,
+            price=price,
+            description=description,
+            category=category,
+            image=image
+        )
+
+        messages.success(request, "Product created successfully!")
+        return redirect("vendor_dashboard")
+
+    categories = Category.objects.all()
+
+    return render(request, "vendor/add_product.html", {"categories": categories})
+
+@login_required
 def vendor_dashboard(request):
-    if not hasattr(request.user, 'vendor'):
-        messages.warning(request, "You are not a vendor.")
-        return redirect('home')
 
-    if not request.user.vendor.is_approved:
-        messages.warning(request, "Your vendor account is pending approval.")
-        return redirect('home')
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
 
-    products = request.user.vendor.products.all()  # connected through a FK
-    return render(request, "vendor/dashboard.html", {'products': products})
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    products = Product.objects.filter(vendor=vendor)
+    orders = OrderItem.objects.filter(product__vendor=vendor)
+
+    total_revenue = 0
+
+    for item in orders:
+        total_revenue += item.price * item.quantity
+
+    context = {
+        "vendor": vendor,
+        "products": products,
+        "orders": orders,
+        "total_revenue": total_revenue,
+    }
+
+    return render(request, "vendor/dashboard.html", context)
 
 @login_required
 def apply_vendor(request):

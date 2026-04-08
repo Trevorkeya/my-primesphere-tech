@@ -1,4 +1,131 @@
-{%extends 'base.html' %}
-{% block content%}
+{% extends 'base.html' %}
 
-{% end block %}
+{% block content %}
+
+<!-- Header -->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">{{ vendor.store_name }} Dashboard</h1>
+            <p class="lead fw-normal text-white-50 mb-0">
+                Manage your products, orders, and revenue
+            </p>
+        </div>
+    </div>
+</header>
+
+<!-- Dashboard Content -->
+<div class="container mt-5">
+
+    <!-- Stats Section -->
+    <div class="row text-center">
+
+        <!-- Revenue Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <h3 class="text-success">${{ total_revenue }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Count -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <h3>{{ products|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Count -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h3>{{ orders|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Add Product Button -->
+    <div class="mb-4 text-end">
+        <a href="{% url 'add_product' %}" class="btn btn-dark">
+            + Add New Product
+        </a>
+    </div>
+
+    <!-- Products Section -->
+    <div class="card mb-5 shadow">
+        <div class="card-header bg-dark text-white">
+            Your Products
+        </div>
+        <div class="card-body">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No products yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            Your Orders
+        </div>
+        <div class="card-body">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.product.name }}</td>
+                        <td>{{ order.quantity }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No orders yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
