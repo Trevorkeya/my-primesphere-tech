@@ -57,6 +57,7 @@ class Vendor(models.Model):
     store_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     business_address = models.TextField()
+    description = models.TextField(max_length=500, default='', blank=True)
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

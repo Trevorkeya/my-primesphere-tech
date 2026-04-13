@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect
 from .models import Product, Category, Profile, Vendor
 from django.contrib.auth import authenticate, login, logout
@@ -85,11 +87,13 @@ def apply_vendor(request):
     if request.method == "POST":
         store_name = request.POST.get("store_name")
         description = request.POST.get("description")
+        phone_number = request.POST.get("phone_number")
+        business_address = request.POST.get("business_address")
 
         # Only create if the user doesn't already have a vendor profile
         vendor, created = Vendor.objects.get_or_create(
             user=request.user,
-            defaults={'store_name': store_name, 'description': description}
+            defaults={'store_name': store_name, 'description': description, 'phone_number': phone_number, 'business_address': business_address}
         )
 
         if not created:
@@ -102,6 +106,7 @@ def apply_vendor(request):
     return render(request, "vendor/apply_vendor.html")
 
 
+# Create a search function that allows users to search for products by name or description
 def search(request):
     # Determine if they filled out the form 
     if request.method == "POST":
