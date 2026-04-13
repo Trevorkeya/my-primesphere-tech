@@ -69,6 +69,32 @@ class OrderItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveBigIntegerField(default=1)
     price = models.DecimalField(max_digits=7, decimal_places=2)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('processing', 'Processing'),
+            ('shipped', 'Shipped'),
+            ('delivered', 'Delivered'),
+        ],
+        default='pending'
+    )
 
     def __str__(self):
         return f'Order Item - {str(self.id)}'
+
+# Automatically update order status to shipped when all items are delivered
+@receiver(post_save, sender=OrderItem)
+def update_order_status(sender, instance, **kwargs):
+
+    order = instance.order
+
+    # Get all items in this order
+    order_items = OrderItem.objects.filter(order=order)
+
+    # Check if ALL items are delivered
+    all_delivered = all(item.status == "delivered" for item in order_items)
+
+    if all_delivered:
+        order.shipped = True
+        order.save()

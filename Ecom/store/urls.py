@@ -30,5 +30,11 @@ urlpatterns = [
     path('vendor/dashboard/', views.vendor_dashboard, name='vendor_dashboard'),
     path('vendor/add-product/', views.add_product, name='add_product'),
 
+    # Vendor Order Management URLs
+    path('vendor/orders/', views.vendor_orders, name='vendor_orders'),
+    path('vendor/orders/update/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    path('vendor/edit-product/<int:pk>/', views.edit_product, name='edit_product'),
+    path('vendor/delete-product/<int:pk>/', views.delete_product, name='delete_product'),
+
 ]
 

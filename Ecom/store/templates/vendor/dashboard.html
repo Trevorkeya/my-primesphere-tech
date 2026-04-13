@@ -4,47 +4,52 @@
 
 <!-- Header -->
 <header class="bg-dark py-5">
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">{{ vendor.store_name }} Dashboard</h1>
-            <p class="lead fw-normal text-white-50 mb-0">
-                Manage your products, orders, and revenue
-            </p>
-        </div>
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">{{ vendor.store_name }} Dashboard</h1>
+        <p class="lead text-white-50">
+            Manage your store, products, and orders
+        </p>
     </div>
 </header>
 
-<!-- Dashboard Content -->
 <div class="container mt-5">
 
-    <!-- Stats Section -->
-    <div class="row text-center">
+    <!-- ACTION BUTTONS -->
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'add_product' %}" class="btn btn-dark">
+            + Add Product
+        </a>
 
-        <!-- Revenue Card -->
-        <div class="col-md-4 mb-4">
+        <a href="{% url 'vendor_orders' %}" class="btn btn-outline-dark">
+            Manage Orders
+        </a>
+    </div>
+
+    <!-- STATS -->
+    <div class="row text-center mb-4">
+
+        <div class="col-md-4 mb-3">
             <div class="card shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Total Revenue</h5>
+                    <h6>Total Revenue</h6>
                     <h3 class="text-success">${{ total_revenue }}</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Products Count -->
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3">
             <div class="card shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Total Products</h5>
+                    <h6>Products</h6>
                     <h3>{{ products|length }}</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Orders Count -->
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-3">
             <div class="card shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Total Orders</h5>
+                    <h6>Orders</h6>
                     <h3>{{ orders|length }}</h3>
                 </div>
             </div>
@@ -52,56 +57,60 @@
 
     </div>
 
-    <!-- Add Product Button -->
-    <div class="mb-4 text-end">
-        <a href="{% url 'add_product' %}" class="btn btn-dark">
-            + Add New Product
-        </a>
-    </div>
-
-    <!-- Products Section -->
-    <div class="card mb-5 shadow">
+    <!-- PRODUCTS -->
+    <div class="card shadow mb-5">
         <div class="card-header bg-dark text-white">
             Your Products
         </div>
-        <div class="card-body">
 
+        <div class="card-body">
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Price</th>
-                        <th>Actions</th>
+                        <th></th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for product in products %}
+                    {% for product in products|slice:":5" %}
                     <tr>
                         <td>{{ product.name }}</td>
                         <td>${{ product.price }}</td>
-                        <td>
-                            <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                        <td class="text-end">
+                            <a href="{% url 'edit_product' product.id %}" class="btn btn-sm btn-primary">Edit</a>
+
+                            <a href="{% url 'delete_product' product.id %}" 
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this product?')">
+                            Delete
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="2">No products yet</td>
+                        <td colspan="3">No products yet</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
+            <div class="text-end">
+                <a href="{% url 'add_product' %}" class="btn btn-sm btn-dark">
+                    Add More Products
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Orders Section -->
+    <!-- Recent Orders (Preview only) -->
     <div class="card shadow">
         <div class="card-header bg-dark text-white">
-            Your Orders
+            Recent Orders
         </div>
-        <div class="card-body">
 
+        <div class="card-body">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -109,8 +118,9 @@
                         <th>Quantity</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for order in orders %}
+                    {% for order in orders|slice:":5" %}
                     <tr>
                         <td>{{ order.product.name }}</td>
                         <td>{{ order.quantity }}</td>
@@ -123,6 +133,11 @@
                 </tbody>
             </table>
 
+            <div class="text-end">
+                <a href="{% url 'vendor_orders' %}" class="btn btn-sm btn-outline-dark">
+                    View All Orders →
+                </a>
+            </div>
         </div>
     </div>
 

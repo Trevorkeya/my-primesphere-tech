@@ -19,6 +19,118 @@ from cart.cart import Cart
 # Create your views here.
 
 @login_required
+def delete_product(request, pk):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    product = Product.objects.get(id=pk)
+
+    # Security Check
+    if product.vendor != vendor:
+        messages.error(request, "Not allowed")
+        return redirect("vendor_dashboard")
+
+    product.delete()
+
+    messages.success(request, "Product deleted successfully!")
+    return redirect("vendor_dashboard")
+
+@login_required
+def edit_product(request, pk):
+    
+    # Check if the user is a vendor, if not redirect to apply page
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    product = Product.objects.get(id=pk)
+
+    # Security Check: Ensure the product belongs to the vendor
+    if product.vendor != vendor:
+        messages.error(request, "Not allowed")
+        return redirect("vendor_dashboard")
+
+    if request.method == "POST":
+        product.name = request.POST.get("name")
+        product.price = request.POST.get("price")
+        product.description = request.POST.get("description")
+
+        category_id = request.POST.get("category")
+        product.category = Category.objects.get(id=category_id)
+
+        if request.FILES.get("image"):
+            product.image = request.FILES.get("image")
+
+        product.save()
+
+        messages.success(request, "Product updated successfully!")
+        return redirect("vendor_dashboard")
+
+    categories = Category.objects.all()
+
+    return render(request, "vendor/edit_product.html", {
+        "product": product,
+        "categories": categories
+    })
+
+@login_required
+def update_order_status(request, order_id):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    order = OrderItem.objects.get(id=order_id)
+
+    # Security check
+    if order.product.vendor != vendor:
+        messages.error(request, "Unauthorized action.")
+        return redirect("vendor_orders")
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+
+        # Validation 
+        valid_statuses = ['pending', 'processing', 'shipped', 'delivered']
+        if new_status not in valid_statuses:
+            messages.error(request, "Invalid status.")
+            return redirect("vendor_orders")
+
+        order.status = new_status
+        order.save()
+
+        messages.success(request, "Order updated successfully!")
+        return redirect("vendor_orders")
+
+@login_required
+def vendor_orders(request):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    # Order by most recent order first
+    orders = OrderItem.objects.filter(
+        product__vendor=vendor
+    ).order_by('-id')
+
+    context = {
+        "orders": orders,
+        "vendor": vendor
+    }
+
+    return render(request, "vendor/orders.html", context)
+
+@login_required
 def add_product(request):
 
     try:
