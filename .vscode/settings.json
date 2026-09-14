@@ -5,8 +5,11 @@
         "dropend",
         "dropstart",
         "dropup",
+        "dynsl",
         "hstack",
+        "nccg",
         "vstack",
         "zindex"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:venv"
 }

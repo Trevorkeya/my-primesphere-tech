@@ -60,12 +60,42 @@
         {%block content%}
         {% endblock %}
 
-
-
-
+    
         <!-- Footer-->
         <footer class="py-5 bg-dark">
-            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Primesphere 2024</p></div>
+            <div class="container text-center text-white">
+
+                <br>
+
+                {% if user.is_authenticated %}
+
+                    {% if user.vendor|default_if_none:'' %}
+                        
+                        {% if user.vendor.is_approved %}
+                            <!-- Approved Vendor -->
+                            <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-light btn-sm">
+                                Go to Vendor Dashboard
+                            </a>
+
+                        {% else %}
+                            <!-- Vendor Pending -->
+                            <span class="text-warning">
+                                Vendor Application Pending Approval
+                            </span>
+
+                        {% endif %}
+
+                    {% else %}
+                        <!-- Regular Logged-in User -->
+                        <a href="{% url 'apply_vendor' %}" class="btn btn-outline-light btn-sm">
+                            Become a Vendor
+                        </a>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Primesphere 2025</p></div>
         </footer>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>

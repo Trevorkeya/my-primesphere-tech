@@ -1,0 +1,58 @@
+{%extends 'base.html' %}
+{% block content%}
+
+
+<!-- Header-->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Vendor Application</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Apply to become a vendor</p>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        
+            <div class="col-md-6 offset-md-3">
+                
+                <br/><br/>
+                <strong>
+                    Vendor Application 
+                </strong>
+                <br/><br/>
+                <form method="POST">
+                {% csrf_token %}
+
+                    <label class="form-label">Store Name</label>
+                    <input type="text" name="store_name" required class="form-control">
+
+                    <label class="form-label mt-3">Phone Number</label>
+                    <input type="text" name="phone_number" class="form-control" required>
+
+                    <label class="form-label mt-3">Business Address</label>
+                    <textarea name="business_address" class="form-control" required></textarea>
+
+                    <label class="form-label mt-3">Description</label>
+                    <textarea name="description" class="form-control"></textarea>
+
+                    <button type="submit" class="btn btn-dark mt-3">
+                        Submit Application
+                    </button>
+                </form>
+                
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+            </div>
+        
+    </div>
+</div>
+
+
+{% endblock %}

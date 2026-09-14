@@ -1,0 +1,26 @@
+{
+    "name": "PrimeSphere Django",
+    "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/virt/bin/python"
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "batisteo.vscode-django",
+                "bibhasdn.django-html",
+                "maxchamps.django-commands",
+                "ms-python.debugpy",
+                "ms-python.isort",
+                "ecmel.vscode-html-css",
+                "esbenp.prettier-vscode",
+                "rangav.vscode-thunder-client"
+            ]
+        }
+    },
+
+    "postCreateCommand": "python -m venv virt && virt/bin/python -m pip install --upgrade pip && virt/bin/python -m pip install -r requirements.txt"
+}

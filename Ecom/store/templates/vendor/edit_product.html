@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<header class="bg-dark py-5">
+    <div class="container text-center text-white">
+        <h1>Edit Product</h1>
+    </div>
+</header>
+
+<div class="container mt-5">
+    <div class="col-md-6 offset-md-3">
+
+        <div class="card shadow">
+            <div class="card-body">
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" name="name" value="{{ product.name }}" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Price</label>
+                        <input type="number" name="price" value="{{ product.price }}" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Category</label>
+                        <select name="category" class="form-select">
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <textarea name="description" class="form-control">{{ product.description }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Image</label>
+                        <input type="file" name="image" class="form-control">
+                    </div>
+
+                    <button class="btn btn-dark">Update Product</button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

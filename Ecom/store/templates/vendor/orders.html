@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header -->
+<header class="bg-dark py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">Order Manager</h1>
+        <p class="text-white-50">Manage all your customer orders</p>
+    </div>
+</header>
+
+<div class="container mt-5">
+
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-dark">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            All Orders
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th style="width: 200px;">Update</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.order.id }}</td>
+                        <td>{{ order.product.name }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>${{ order.price }}</td>
+
+                        <!-- Status Badges -->
+                        <td>
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% elif order.status == 'processing' %}
+                                <span class="badge bg-warning text-dark">Processing</span>
+                            {% elif order.status == 'shipped' %}
+                                <span class="badge bg-info text-dark">Shipped</span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success">Delivered</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Update Form -->
+                        <td>
+                            <form method="POST" action="{% url 'update_order_status' order.id %}">
+                                {% csrf_token %}
+
+                                <div class="d-flex gap-2">
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="pending">Pending</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="shipped">Shipped</option>
+                                        <option value="delivered">Delivered</option>
+                                    </select>
+
+                                    <button type="submit" class="btn btn-sm btn-dark">
+                                        ✓
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No orders yet
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

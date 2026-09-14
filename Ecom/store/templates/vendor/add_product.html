@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header -->
+<header class="bg-dark py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">Add New Product</h1>
+        <p class="lead text-white-50">Create and list a new product in your store</p>
+    </div>
+</header>
+
+<!-- Form Section -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-body">
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" step="0.01" class="form-control" required>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4"></textarea>
+                        </div>
+
+                        <!-- Image -->
+                        <div class="mb-4">
+                            <label class="form-label">Product Image</label>
+                            <input type="file" name="image" class="form-control">
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'vendor_dashboard' %}" class="btn btn-secondary">
+                                ← Back
+                            </a>
+                            <button type="submit" class="btn btn-dark">
+                                Add Product
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

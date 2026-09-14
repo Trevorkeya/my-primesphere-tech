@@ -1,13 +1,16 @@
+from urllib import request
+
 from django.shortcuts import render, redirect
-from .models import Product, Category, Profile
+from .models import Product, Category, Profile, Vendor
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
+from django.contrib.auth.decorators import login_required
 
 from payment.forms import ShippingForm
-from payment.models import ShippingAddress
+from payment.models import ShippingAddress, OrderItem
 from django import forms
 from django.db.models import Q
 import json
@@ -15,6 +18,207 @@ from cart.cart import Cart
 
 # Create your views here.
 
+@login_required
+def delete_product(request, pk):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    product = Product.objects.get(id=pk)
+
+    # Security Check
+    if product.vendor != vendor:
+        messages.error(request, "Not allowed")
+        return redirect("vendor_dashboard")
+
+    product.delete()
+
+    messages.success(request, "Product deleted successfully!")
+    return redirect("vendor_dashboard")
+
+@login_required
+def edit_product(request, pk):
+    
+    # Check if the user is a vendor, if not redirect to apply page
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    product = Product.objects.get(id=pk)
+
+    # Security Check: Ensure the product belongs to the vendor
+    if product.vendor != vendor:
+        messages.error(request, "Not allowed")
+        return redirect("vendor_dashboard")
+
+    if request.method == "POST":
+        product.name = request.POST.get("name")
+        product.price = request.POST.get("price")
+        product.description = request.POST.get("description")
+
+        category_id = request.POST.get("category")
+        product.category = Category.objects.get(id=category_id)
+
+        if request.FILES.get("image"):
+            product.image = request.FILES.get("image")
+
+        product.save()
+
+        messages.success(request, "Product updated successfully!")
+        return redirect("vendor_dashboard")
+
+    categories = Category.objects.all()
+
+    return render(request, "vendor/edit_product.html", {
+        "product": product,
+        "categories": categories
+    })
+
+@login_required
+def update_order_status(request, order_id):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    order = OrderItem.objects.get(id=order_id)
+
+    # Security check
+    if order.product.vendor != vendor:
+        messages.error(request, "Unauthorized action.")
+        return redirect("vendor_orders")
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+
+        # Validation 
+        valid_statuses = ['pending', 'processing', 'shipped', 'delivered']
+        if new_status not in valid_statuses:
+            messages.error(request, "Invalid status.")
+            return redirect("vendor_orders")
+
+        order.status = new_status
+        order.save()
+
+        messages.success(request, "Order updated successfully!")
+        return redirect("vendor_orders")
+
+@login_required
+def vendor_orders(request):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    # Order by most recent order first
+    orders = OrderItem.objects.filter(
+        product__vendor=vendor
+    ).order_by('-id')
+
+    context = {
+        "orders": orders,
+        "vendor": vendor
+    }
+
+    return render(request, "vendor/orders.html", context)
+
+@login_required
+def add_product(request):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        category_id = request.POST.get("category")
+        image = request.FILES.get("image")
+
+        category = Category.objects.get(id=category_id)
+
+        Product.objects.create(
+            vendor=vendor,
+            name=name,
+            price=price,
+            description=description,
+            category=category,
+            image=image
+        )
+
+        messages.success(request, "Product created successfully!")
+        return redirect("vendor_dashboard")
+
+    categories = Category.objects.all()
+
+    return render(request, "vendor/add_product.html", {"categories": categories})
+
+@login_required
+def vendor_dashboard(request):
+
+    try:
+        vendor = request.user.vendor
+    except Vendor.DoesNotExist:
+        return redirect("apply_vendor")
+
+    if not vendor.is_approved:
+        return render(request, "vendor/pending_approval.html")
+
+    products = Product.objects.filter(vendor=vendor)
+    orders = OrderItem.objects.filter(product__vendor=vendor)
+
+    total_revenue = 0
+
+    for item in orders:
+        total_revenue += item.price * item.quantity
+
+    context = {
+        "vendor": vendor,
+        "products": products,
+        "orders": orders,
+        "total_revenue": total_revenue,
+    }
+
+    return render(request, "vendor/dashboard.html", context)
+
+@login_required
+def apply_vendor(request):
+    if request.method == "POST":
+        store_name = request.POST.get("store_name")
+        description = request.POST.get("description")
+        phone_number = request.POST.get("phone_number")
+        business_address = request.POST.get("business_address")
+
+        # Only create if the user doesn't already have a vendor profile
+        vendor, created = Vendor.objects.get_or_create(
+            user=request.user,
+            defaults={'store_name': store_name, 'description': description, 'phone_number': phone_number, 'business_address': business_address}
+        )
+
+        if not created:
+            messages.warning(request, "You have already applied to be a vendor.")
+            return redirect('home')
+
+        messages.success(request, "Application submitted! Wait for approval.")
+        return render(request, "vendor/application_submitted.html")
+
+    return render(request, "vendor/apply_vendor.html")
+
+
+# Create a search function that allows users to search for products by name or description
 def search(request):
     # Determine if they filled out the form 
     if request.method == "POST":
